@@ -2,12 +2,12 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public class Cliente2{
-	public static void main(String[] args){
+public class Cliente2 implements Operaciones {
+	public static void main(String[] args) {
 		Socket yo = null;
 		PrintWriter alServidor = null;
 		Scanner delTeclado;
-		DataInputStream delServidor = null;
+		BufferedReader delServidor = null;
 		String tecleado;
 
 		try {
@@ -26,45 +26,49 @@ public class Cliente2{
 		delTeclado = new Scanner(System.in);
 		try {
 			alServidor  = new PrintWriter(yo.getOutputStream(),true);
-			delServidor = new DataInputStream(yo.getInputStream());
+			delServidor = new BufferedReader(new InputStreamReader(yo.getInputStream()));
 		}
 		catch (IOException e){
 			System.err.println(e.getMessage());
 			System.exit(1);
 		}		
 
-		// Validar inicio de sesion
-		int intentos = 0;
-		boolean aceptado = false;
+		// Interfaz de comandos
+		String respuesta;
+		int operacion;
 		do {
-			System.out.print("Introduzca su nombre de usuario: ");
+			System.out.print("> ");
 			tecleado = delTeclado.nextLine();
-			alServidor.println(tecleado);
-			System.out.print("Introduzca su contraseña: ");
-			tecleado = delTeclado.nextLine();
-			alServidor.println(tecleado);
+			alServidor.println(tecleado); // Enviar comando al servidor
 			try {
-				aceptado = delServidor.readBoolean();
+				operacion = Integer.parseInt(delServidor.readLine()); // Espera la indicacion del servidor
+				while (operacion != NONE && operacion != END) {
+					switch (operacion) {
+					// Le indica al cliente que debe leer otra linea del teclado y enviarla al servidor
+					case READ_LINE:
+						tecleado = delTeclado.nextLine();
+						alServidor.println(tecleado);
+						break;
+					// Le indica al cliente que debe leer una linea del servidor e imprimirla como una nueva linea en la terminal
+					case PRINT_LINE:
+						respuesta = delServidor.readLine();
+						System.out.println(respuesta);
+						break;
+					// Le indica al cliente que debe leer una linea del servidor e imprimirla sin salto de linea
+					case PRINT:
+						respuesta = delServidor.readLine();
+						System.out.print(respuesta);
+						break;
+					}
+					operacion = Integer.parseInt(delServidor.readLine());
+				}
 			}
-			catch (IOException e){
-				System.err.println(e.getMessage());
-				System.exit(1);
+			catch (IOException ex) {
+				System.err.println(ex);
+				ex.printStackTrace();
+				operacion = END;
 			}
-			intentos++;
-			if (!aceptado) {
-				System.out.println("Credenciales invalidas (" + (3 - intentos) + " intentos restantes)");
-			}
-		} while (intentos < 3 && !aceptado);	
-
-		// Si el usuario no fue aceptado, se tuvo que pasar del limite de intentos
-		if (!aceptado) {
-			System.out.println("Limite de intentos excedido");
-		}
-		// Si el usuario y contraseña fueron aceptados, continuar la ejecucion del programa
-		else {
-			System.out.println("Bienvenido");
-		}
-
+		} while (operacion != END); // el cliente deja de recibir comandos y se cierra cuando el servidor le envia la operacion de finalizacion
 		System.out.println("Cerrando el programa");
 		try {
 			delServidor.close();

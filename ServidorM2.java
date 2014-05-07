@@ -68,11 +68,11 @@ class DatosSocket {
 	}
 }
 
-class AtiendeM2 extends Thread {
+class AtiendeM2 extends Thread implements Operaciones {
 	private BufferedReader entrada;
-	private DataOutputStream salida;
-	private String llego;
+	private PrintWriter salida;
 	private Socket cliente = null;
+	private final int MAX_INTENTOS = 3;
 	DatosSocket dSocket = null;
 
 	public AtiendeM2(Socket cliente){
@@ -84,32 +84,47 @@ class AtiendeM2 extends Thread {
 	public void run() {
 		try {
         		entrada = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
-			salida = new DataOutputStream(cliente.getOutputStream());
-			// Validar por el lado del servidor el usuario y contraseña un maximo de 3 veces
-			int intentos = 0;
-			boolean aceptado = false;
-			String usuario, contrasena;
+			salida = new PrintWriter(cliente.getOutputStream(), true);
+			String leido, usuario;
+			String[] comandos;
+			int intentos = 0; // numero de intentos de inicio de sesion
+			boolean aceptado = false; // indica si el usuario ya inicio sesion con exito
 			do {
-				usuario = entrada.readLine();
-				contrasena = entrada.readLine();
-				System.out.println("("+dSocket.toString()+") Intento de conexion:");
-				System.out.println("Usuario: " + usuario);
-				System.out.println("Contraseña: " + contrasena);
-				aceptado = validarUsuario(usuario, contrasena);
-				if (aceptado) {
-					salida.writeBoolean(true);
+				leido = entrada.readLine();
+				comandos = leido.split(" ");
+				if (comandos.length == 0) {
+					salida.println(NONE);
+				}
+				else if (comandos[0].equals("exit")) {
+					salida.println(END);
+				}
+				else if (comandos[0].equals("log") && !aceptado) {
+					intentos++;
+					usuario = comandos[1];
+					salida.println(PRINT);
+					salida.println("Contraseña: ");
+					salida.println(READ_LINE);
+					String contrasena = entrada.readLine();
+					salida.println(PRINT_LINE);
+					aceptado = validarUsuario(usuario, contrasena);
+					if (aceptado) {
+						salida.println("Bienvenido");
+						// TODO: agregar el usuario al log
+					}
+					else {
+						salida.println("Credenciales rechazadas (" + (MAX_INTENTOS - intentos) + " intentos restantes)");
+					}
+					salida.println(NONE);
+				}
+				else if (!aceptado) {
+					salida.println(PRINT_LINE);
+					salida.println("Comando rechazado, inicia sesion con el comando \"log <nombre de usuario>\"");
+					salida.println(NONE);
 				}
 				else {
-					salida.writeBoolean(false);
+					salida.println(NONE);
 				}
-				intentos++;
-			} while (intentos < 3 && !aceptado);
-
-			// Si el usuario fue aceptado, continuar la ejecucion
-			if (aceptado) {
-				// TODO: guardar el log de inicio de sesion
-				System.out.println("("+dSocket.toString()+") inicio sesion con el nombre de usuario: " + usuario);
-			}
+			} while (!comandos[0].equals("exit")); // se termina la sesion cuando el usuario envia el comando de exit
 		}
 		// Para que el ctrl-C no haga "tronar" al servidor
 		catch (SocketException se) {
