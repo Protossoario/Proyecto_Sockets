@@ -4,6 +4,7 @@ import java.util.*;
 
 public class Cliente2 implements Operaciones {
 	public static void main(String[] args) {
+		/** Inicio de conexion del socket (codigo de ejemplo javax) */
 		Socket yo = null;
 		PrintWriter alServidor = null;
 		Scanner delTeclado;
@@ -22,10 +23,14 @@ public class Cliente2 implements Operaciones {
 			System.exit(1);
 		}		
 		System.out.println("Conectado:" + yo.toString());
+		/* Fin de la conexion del socket */
 	
+		// objeto para leer input del usuario desde el teclado
 		delTeclado = new Scanner(System.in);
 		try {
-			alServidor  = new PrintWriter(yo.getOutputStream(),true);
+			// objeto para enviar lineas de texto al servidor
+			alServidor = new PrintWriter(yo.getOutputStream(),true);
+			// objeto para recibir lineas de texto desde el servidor
 			delServidor = new BufferedReader(new InputStreamReader(yo.getInputStream()));
 		}
 		catch (IOException e){
