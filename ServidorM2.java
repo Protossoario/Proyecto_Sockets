@@ -3,8 +3,8 @@ import java.net.*;
 
 public class ServidorM2{
 	public static void main(String[] args){
-		ServerSocket servidor = null;
-		Socket cliente = null;
+		ServerSocket servidor = null;  // Inicializa el servidor
+		Socket cliente = null; // Aceptar conexiones de clientes
 		boolean escuchando = true;
 		final int PUERTO = 5000; // Puerto del servidor
 
@@ -19,18 +19,21 @@ public class ServidorM2{
 			System.exit(1);
 		}
 
-		// Servidor escuchando por peticiones de conexin
-		// Ciclo principal, creando un hilo para manejar cada conexin pedida
+		// Servidor escuchando por peticiones de conexion
+		// Ciclo principal, creando un hilo para manejar cada conexion pedida
 		while (escuchando) {
 			try {
-				cliente = servidor.accept();
+				// espera hasta que llegue una peticion de conexion y la guarda en variable cliente
+				cliente = servidor.accept(); // socket del cliente
 			}
 			catch (IOException e) {
-				System.err.println("Error al llegar una peticin de conexin: " + e.getMessage());
+				System.err.println("Error al llegar una peticion de conexion: " + e.getMessage());
 				cliente = null;
 			}
 			if (cliente != null) {
-				new AtiendeM2(cliente).start();
+				new AtiendeM2(cliente).start(); // manda como parametro el socket del cliente
+				/* cada que un nuevo cliente se conecta, se inicializa un nuevo thread AtiendeM2
+				que va a estar corriendo el codigo para atender al cliente */
 			}
 		}
 		try {
@@ -40,13 +43,14 @@ public class ServidorM2{
 	}
 }
 
+/* cuando se hace la llamada de AtiendeM2, se crea una instancia de DatosSocket */
 class DatosSocket {
-	InetAddress dirIPLocal  = null;
-	InetAddress dirIPRemota = null;
-	int puertoLocal         = 0;
-	int puertoRemoto        = 0;
+	InetAddress dirIPLocal  = null; // Direccion IP de Servidor
+	InetAddress dirIPRemota = null; // Direccion IP de Cliente
+	int puertoLocal         = 0; // Puerto con el que esta escuchando Servidor 5000
+	int puertoRemoto        = 0; // Puerto del cliente
 
-	public DatosSocket(Socket socket) {
+	public DatosSocket(Socket socket) { // Recibe como parametro el socket del cliente que se conecto
 		dirIPRemota = socket.getInetAddress();
 		puertoRemoto = socket.getPort();
 		dirIPLocal = socket.getLocalAddress();
@@ -68,45 +72,49 @@ class DatosSocket {
 	}
 }
 
+/* el hilo para cada cliente */
 class AtiendeM2 extends Thread implements Operaciones {
-	private BufferedReader entrada;
-	private PrintWriter salida;
-	private Socket cliente = null;
-	private final int MAX_INTENTOS = 3;
+	private BufferedReader entrada; // lo que se lee del cliente
+	private PrintWriter salida; // por donde se manda algo al cliente
+	private Socket cliente = null; // variable de conexion que recibe el servidor
+	private final int MAX_INTENTOS = 3; // intentos de log in del usuario
 	DatosSocket dSocket = null;
 
-	public AtiendeM2(Socket cliente){
+	public AtiendeM2(Socket cliente){ // recibe el socket del cliente 
 		this.cliente = cliente;
-		dSocket = new DatosSocket(cliente);
+		dSocket = new DatosSocket(cliente); // guarda los datos del socket
 		System.out.println("Ya se conecto --> " + dSocket.toString());
 	}
 
+	// comunicacion del servidor con el cliente
 	public void run() {
 		try {
-        		entrada = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
+        	entrada = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
 			salida = new PrintWriter(cliente.getOutputStream(), true);
-			String leido, usuario;
+			String leido; // guarda lo que lee de la entrada del cliente
+			String usuario;
 			String[] comandos;
-			int intentos = 0; // numero de intentos de inicio de sesion
+			int intentos = 0; // numero de intentos de log in
 			boolean aceptado = false; // indica si el usuario ya inicio sesion con exito
 			do {
-				leido = entrada.readLine();
-				comandos = leido.split(" ");
-				if (comandos.length == 0) {
-					salida.println(NONE);
+				leido = entrada.readLine(); // entrada del cliente
+				comandos = leido.split(" "); // parte el comando en un arreglo de strings
+				
+				if (comandos.length == 0) { // no mando nada el cliente
+					salida.println(NONE); // manda la constante none (finalizar la ejecucion del comando; next comando)
 				}
 				else if (comandos[0].equals("exit")) {
-					salida.println(END);
+					salida.println(END); // cerrar la conexion con el cliente 
 				}
-				else if (comandos[0].equals("log") && !aceptado) {
-					intentos++;
-					usuario = comandos[1];
-					salida.println(PRINT);
-					salida.println("Contraseña: ");
-					salida.println(READ_LINE);
-					String contrasena = entrada.readLine();
+				else if (comandos[0].equals("log") && !aceptado) { //log in de un usuario que NO ha iniciado sesion
+					intentos++; // aumenta contador de intentos de log in
+					usuario = comandos[1]; // cuenta del usuario
+					salida.println(PRINT); // servidor le manda un string al cliente para que lo imprima 
+					salida.println("Contraseña: "); // pide contraseña del usuario
+					salida.println(READ_LINE); // el cliente lee el string y se lo manda al servidor
+					String contrasena = entrada.readLine(); // servidor en espera hasta que llegue el string del cliente
 					salida.println(PRINT_LINE);
-					aceptado = validarUsuario(usuario, contrasena);
+					aceptado = validarUsuario(usuario, contrasena); // revisar archivo de texto para validar usuario
 					if (aceptado) {
 						salida.println("Bienvenido");
 						// TODO: agregar el usuario al log
@@ -114,26 +122,28 @@ class AtiendeM2 extends Thread implements Operaciones {
 					else {
 						salida.println("Credenciales rechazadas (" + (MAX_INTENTOS - intentos) + " intentos restantes)");
 					}
-					salida.println(NONE);
+					salida.println(NONE); // finaliza ejecucion del comando de log in
 				}
-				else if (!aceptado) {
+				else if (!aceptado) { // no permite ejecutar nada, sin haber iniciado sesion
 					salida.println(PRINT_LINE);
 					salida.println("Comando rechazado, inicia sesion con el comando \"log <nombre de usuario>\"");
 					salida.println(NONE);
 				}
-				else {
+				else { // si es un comando que no reconoce, no hace nada y lo finaliza
 					salida.println(NONE);
 				}
-			} while (!comandos[0].equals("exit")); // se termina la sesion cuando el usuario envia el comando de exit
+			} while (!comandos[0].equals("exit")); /* va a seguir recibiendo comandos, mientras no reciba exit
+													se termina la sesion cuando el usuario envia el comando de exit */
 		}
-		// Para que el ctrl-C no haga "tronar" al servidor
-		catch (SocketException se) {
-			System.err.println("Error al recibir datos, cerrando conexin.....");
+		catch (SocketException se) { // Para que el ctrl-C no haga "tronar" al servidor
+			System.err.println("Error al recibir datos, cerrando conexion.....");
 		}
 		catch (IOException e) {
 			System.err.println("Error al recibir datos: " + e.getMessage());
 			e.printStackTrace();
 		}
+
+		// conexion se cierra: por el comando exit o por error
 		try {
 			entrada.close();
 			salida.close();
@@ -143,11 +153,12 @@ class AtiendeM2 extends Thread implements Operaciones {
 		System.out.println("Ya se desconecto --> "+ dSocket.toString());
 	}
 
-	// Metodo para validar las credenciales de un usuario intentando conectarse, leyendo del archivo usuarios.txt los nombres y contrasenas validos
+	/* Metodo para validar las credenciales de un usuario intentando conectarse, 
+	   lee del archivo usuarios.txt los nombres y contrasenas validos */
 	private boolean validarUsuario(String usuario, String contra) {
 		try {
-			BufferedReader delArchivo = new BufferedReader(new FileReader("usuarios.txt"));
-			String linea = delArchivo.readLine();
+			BufferedReader delArchivo = new BufferedReader(new FileReader("usuarios.txt")); // abre archivo usuarios.txt
+			String linea = delArchivo.readLine(); // lee primera linea del archivo
 			while (linea != null) {
 				// Separar las lineas del archivo usando el caracter ':' como delimitador
 				String[] info = linea.split(":");
@@ -156,9 +167,9 @@ class AtiendeM2 extends Thread implements Operaciones {
 				}
 				// Validar las credenciales del usuario con la informacion de la linea leida del archivo usuarios.txt
 				else if (info[0].compareTo(usuario) == 0 && info[1].compareTo(contra) == 0) {
-					return true;
+					return true; // usuario y contrasenas del usuario coinciden con un usuario en el archivo
 				}
-				linea = delArchivo.readLine();
+				linea = delArchivo.readLine(); // lee la siguiente linea
 			}
 			delArchivo.close();
 		}
@@ -166,6 +177,6 @@ class AtiendeM2 extends Thread implements Operaciones {
 			System.err.println("Error leyendo el archivo de usuarios: " + ex.getMessage());
 			ex.printStackTrace();
 		}
-		return false;
+		return false; // no encontro usuario y contrasena validos
 	}
 }

@@ -5,11 +5,11 @@ import java.util.*;
 public class Cliente2 implements Operaciones {
 	public static void main(String[] args) {
 		/** Inicio de conexion del socket (codigo de ejemplo javax) */
-		Socket yo = null;
-		PrintWriter alServidor = null;
-		Scanner delTeclado;
-		BufferedReader delServidor = null;
-		String tecleado;
+		Socket yo = null; // socket del cliente
+		PrintWriter alServidor = null; // mandar cosas en un string al servidor
+		Scanner delTeclado; // lee input del teclado
+		BufferedReader delServidor = null; // lee strings que el servidor le manda al cliente
+		String tecleado; // guardar lo que recibe del teclado
 
 		try {
 			yo = new Socket(args[0],5000);
