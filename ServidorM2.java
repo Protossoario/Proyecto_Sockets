@@ -81,7 +81,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 	private final int MAX_SIZE = 1000000; // tamano maximo en bytes del buffer para la transferencia de archivos del cliente al servidor
 	DatosSocket dSocket = null;
 
-	public AtiendeM2(Socket cliente){ // recibe el socket del cliente 
+	public AtiendeM2(Socket cliente){ // recibe el socket del cliente
 		this.cliente = cliente;
 		dSocket = new DatosSocket(cliente); // guarda los datos del socket
 		System.out.println("Ya se conecto --> " + dSocket.toString());
@@ -100,17 +100,17 @@ class AtiendeM2 extends Thread implements Operaciones {
 			do {
 				leido = entrada.readLine(); // entrada del cliente
 				comandos = leido.split(" "); // parte el comando en un arreglo de strings
-				
+
 				if (comandos.length == 0) { // no mando nada el cliente
 					salida.println(NONE); // manda la constante none (finalizar la ejecucion del comando; next comando)
 				}
 				else if (comandos[0].equals("exit")) {
-					salida.println(END); // cerrar la conexion con el cliente 
+					salida.println(END); // cerrar la conexion con el cliente
 				}
 				else if (comandos[0].equals("log") && !aceptado) { //log in de un usuario que NO ha iniciado sesion
 					intentos++; // aumenta contador de intentos de log in
 					usuario = comandos[1]; // cuenta del usuario
-					salida.println(PRINT); // servidor le manda un string al cliente para que lo imprima 
+					salida.println(PRINT); // servidor le manda un string al cliente para que lo imprima
 					salida.println("Contraseña: "); // pide contraseña del usuario
 					salida.println(READ_LINE); // el cliente lee el string y se lo manda al servidor
 					String contrasena = entrada.readLine(); // servidor en espera hasta que llegue el string del cliente
@@ -141,6 +141,76 @@ class AtiendeM2 extends Thread implements Operaciones {
 					salida.println(NONE);
 
 				}
+				else if(comandos[0].equals("dirR"))
+                {//mostrar todos los archivos del directorio actual
+                    if(comandos.length()==1)
+                    {//llamada al metodo listar archivos
+                        String s[];
+                        s=ManejadorArchivos.listarArhivos();
+                        for(int i=0;i<s.length();i++)
+                        {
+                            salida.println(PRINT_LINE);
+                            salida.println(s[i]);
+                        }
+                        salida.println(NONE);
+                    }
+                    else {
+						salida.println(PRINT_LINE);
+						salida.println("Error: utilice el comando \"dirR\"");
+						salida.println(NONE);
+					}
+
+                }
+				else if(comandos[0].equals("rmR"))
+                {//comando para borrar archivos
+                    if(comandos.length()==2)
+                    {//llamada al metodo borrarArchivo
+
+                        salida.println(PRINT_LINE);
+                        boolean s=ManejadorArchivos.borrarArchivo(comandos[1]);
+                        if(s)
+                        {
+                            salida.println("Archivo borrado");
+                        }
+                        else
+                        {
+                            salida.println("No se pudo borrar");
+                        }
+
+                        salida.println(NONE);
+
+                    }
+                    else {
+						salida.println(PRINT_LINE);
+						salida.println("Error: utilice el comando \"rmR\" <archivo>");
+						salida.println(NONE);
+					}
+
+                }
+                else if(comandos[0].equals("cpR"))
+                {//copiar archivo
+                    if(comandos.length()==2)
+                    {//llamada al metodo copiarArchivo
+                        salida.println(PRINT_LINE);
+                        boolean s=ManejadorArchivos.copiarArchivo(comandos[1],comandos[2]);
+                        if(s)
+                        {
+                            salida.println("Archivo copiado");
+                        }
+                        else
+                        {
+                            salida.println("No se pudo copiar");
+                        }
+
+                        salida.println(NONE);
+                    }
+                    else {
+						salida.println(PRINT_LINE);
+						salida.println("Error: utilice el comando \"cpR\" <archivo1> <archivo2>");
+						salida.println(NONE);
+					}
+                }
+
 				else if (comandos[0].equals("enviar")) { // transferir un archivo desde el cliente hasta el servidor
 					if (comandos.length == 3) {
 						salida.println(TRANSFER_FILE);
@@ -186,7 +256,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 		System.out.println("Ya se desconecto --> "+ dSocket.toString());
 	}
 
-	/* Metodo para validar las credenciales de un usuario intentando conectarse, 
+	/* Metodo para validar las credenciales de un usuario intentando conectarse,
 	   lee del archivo usuarios.txt los nombres y contrasenas validos */
 	private boolean validarUsuario(String usuario, String contra) {
 		try {
