@@ -99,8 +99,8 @@ class AtiendeM2 extends Thread implements Operaciones {
 		try {
         	entrada = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
 			salida = new PrintWriter(cliente.getOutputStream(), true);
-			bitacoraSesion = new PrintWriter("log.txt");
-			df = DateFormat.getDateInstance(DateFormat.FULL);
+			bitacoraSesion = new PrintWriter(new BufferedWriter(new FileWriter("log.txt", true)));
+			df = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL);
 			String leido; // guarda lo que lee de la entrada del cliente
 			String[] comandos;
 			int intentos = 0; // numero de intentos de log in
@@ -128,7 +128,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 					if (aceptado) {
 						salida.println("Bienvenido");
 						bitacoraSesion.println("Inicio sesion: " + usuario + "; " + df.format(new Date())); 
-						bitacoraUsuario = new PrintWriter(usuario + ".txt");
+						bitacoraUsuario = new PrintWriter(new BufferedWriter(new FileWriter(usuario + ".txt", true)));
 					}
 					else {
 						salida.println("Credenciales rechazadas (" + (MAX_INTENTOS - intentos) + " intentos restantes)");
@@ -326,7 +326,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 				else { // si es un comando que no reconoce, no hace nada y lo finaliza
 					salida.println(NONE);
 				}
-				if (comando) {
+				if (comando && aceptado) {
 					bitacoraUsuario.println(comandos[0] + " " + df.format(new Date()));
 				}
 			} while (intentos < MAX_INTENTOS && (!comando || !comandos[0].equals("exit"))); /* va a seguir recibiendo comandos, mientras no reciba exit
@@ -345,11 +345,14 @@ class AtiendeM2 extends Thread implements Operaciones {
 
 		// conexion se cierra: por el comando exit o por error
 		try {
+			salida.println(END);
 			entrada.close();
 			salida.close();
 			cliente.close();
-			bitacoraSesion.close();
-			bitacoraUsuario.close();
+			if (aceptado) {
+				bitacoraSesion.close();
+				bitacoraUsuario.close();
+			}
 		}
 		catch(IOException e){}
 		System.out.println("Ya se desconecto --> "+ dSocket.toString());

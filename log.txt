@@ -1,0 +1,6 @@
+Inicio sesion: admin; Thursday, May 8, 2014
+Cerro sesion: admin; Thursday, May 8, 2014
+Inicio sesion: admin; Thursday, May 8, 2014 2:18:17 AM CDT
+Cerro sesion: admin; Thursday, May 8, 2014 2:18:22 AM CDT
+Inicio sesion: iliana; Thursday, May 8, 2014 2:18:27 AM CDT
+Cerro sesion: iliana; Thursday, May 8, 2014 2:18:30 AM CDT

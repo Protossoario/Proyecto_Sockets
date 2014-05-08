@@ -1,3 +1,9 @@
 log Thursday, May 8, 2014
+dirR Thursday, May 8, 2014
+exit Thursday, May 8, 2014
+log Thursday, May 8, 2014
 dirL Thursday, May 8, 2014
 exit Thursday, May 8, 2014
+log Thursday, May 8, 2014 2:18:17 AM CDT
+dirL Thursday, May 8, 2014 2:18:20 AM CDT
+exit Thursday, May 8, 2014 2:18:22 AM CDT
