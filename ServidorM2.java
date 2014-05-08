@@ -143,11 +143,11 @@ class AtiendeM2 extends Thread implements Operaciones {
 				}
 				else if(comandos[0].equals("dirR"))
                 {//mostrar todos los archivos del directorio actual
-                    if(comandos.length()==1)
+                    if(comandos.length==1)
                     {//llamada al metodo listar archivos
                         String s[];
-                        s=ManejadorArchivos.listarArhivos();
-                        for(int i=0;i<s.length();i++)
+                        s=ManejadorArchivos.listarArchivos();
+                        for(int i=0;i<s.length;i++)
                         {
                             salida.println(PRINT_LINE);
                             salida.println(s[i]);
@@ -163,7 +163,7 @@ class AtiendeM2 extends Thread implements Operaciones {
                 }
 				else if(comandos[0].equals("rmR"))
                 {//comando para borrar archivos
-                    if(comandos.length()==2)
+                    if(comandos.length==2)
                     {//llamada al metodo borrarArchivo
 
                         salida.println(PRINT_LINE);
@@ -189,7 +189,7 @@ class AtiendeM2 extends Thread implements Operaciones {
                 }
                 else if(comandos[0].equals("cpR"))
                 {//copiar archivo
-                    if(comandos.length()==2)
+                    if(comandos.length==2)
                     {//llamada al metodo copiarArchivo
                         salida.println(PRINT_LINE);
                         boolean s=ManejadorArchivos.copiarArchivo(comandos[1],comandos[2]);
