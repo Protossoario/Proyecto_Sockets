@@ -39,11 +39,12 @@ public class ManejadorArchivos {
 		return false;
 	}
 	// Metodo que intenta copiar un archivo, recibiendo como parametro el nombre original del archivo, y el nombre del archivo al que se quiere copiar
-	public static void copiarArchivo(String archivoOriginal, String archivoNuevo) {
+	public static boolean copiarArchivo(String archivoOriginal, String archivoNuevo) {
 		Path archivoOriginalPath = Paths.get(archivoOriginal);
 		Path archivoNuevoPath = Paths.get(archivoNuevo);
 		try {
 			Files.copy(archivoOriginalPath, archivoNuevoPath);
+			return true;
 		}
 		catch (FileAlreadyExistsException ex) {
 			System.err.println(archivoNuevo + " ya existe");
@@ -54,5 +55,6 @@ public class ManejadorArchivos {
 		catch (IOException ex) {
 			System.err.println(ex);
 		}
+		return false;
 	}
 }
