@@ -21,10 +21,10 @@ public class Cliente2 implements Operaciones {
 		catch (IOException e){
 			System.err.println(e.getMessage());
 			System.exit(1);
-		}		
+		}
 		System.out.println("Conectado:" + yo.toString());
 		/* Fin de la conexion del socket */
-	
+
 		// objeto para leer input del usuario desde el teclado
 		delTeclado = new Scanner(System.in);
 		try {
@@ -36,7 +36,7 @@ public class Cliente2 implements Operaciones {
 		catch (IOException e){
 			System.err.println(e.getMessage());
 			System.exit(1);
-		}		
+		}
 
 		// Interfaz de comandos
 		String respuesta;
@@ -79,6 +79,31 @@ public class Cliente2 implements Operaciones {
 						lectorArchivo.close();
 						System.out.println("Archivo enviado con exito");
 						break;
+                    case LISTAR:
+                        String s[];
+                        s=ManejadorArchivos.listarArchivos();
+                        for(int i=0;i<s.length;i++)
+                        {
+                            System.out.println(s[i]);
+                        }
+                        break;
+                    case BORRAR:
+                        String nombreArchivo = delServidor.readLine();
+                        boolean resultadoB=ManejadorArchivos.borrarArchivo(nombreArchivo);
+                        if(resultadoB)
+                            System.out.println("Archivo borrado.");
+                        else
+                            System.out.println("No se pudo borrar.");
+                        break;
+                    case COPIAR:
+                        String nombreArchivo1 = delServidor.readLine();
+                        String nombreArchivo2 = delServidor.readLine();
+                        boolean resultado=ManejadorArchivos.copiarArchivo(nombreArchivo1,nombreArchivo2);
+                        if(resultado)
+                            System.out.println("Archivo copiado.");
+                        else
+                            System.out.println("No se pudo copiar.");
+                        break;
 					}
 					operacion = Integer.parseInt(delServidor.readLine());
 				}
@@ -94,11 +119,11 @@ public class Cliente2 implements Operaciones {
 			delServidor.close();
 			delTeclado.close();
 			alServidor.close();
-			yo.close();		
+			yo.close();
 		}
 		catch (IOException e){
 			System.err.println(e.getMessage());
 			System.exit(1);
-		}		
+		}
 	}
 }

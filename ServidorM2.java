@@ -156,6 +156,7 @@ class AtiendeM2 extends Thread implements Operaciones {
                     if(comandos.length==2)
                     {
                         salida.println(BORRAR);
+                        salida.println(comandos[1]);
                         salida.println(NONE);
 
                     }
@@ -171,6 +172,8 @@ class AtiendeM2 extends Thread implements Operaciones {
                     if(comandos.length==3)
                     {
                         salida.println(COPIAR);
+                        salida.println(comandos[1]);
+                        salida.println(comandos[2]);
                         salida.println(NONE);
                     }
                     else {
