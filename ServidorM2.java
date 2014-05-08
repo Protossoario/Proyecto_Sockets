@@ -130,6 +130,17 @@ class AtiendeM2 extends Thread implements Operaciones {
 					salida.println("Comando rechazado, inicia sesion con el comando \"log <nombre de usuario>\"");
 					salida.println(NONE);
 				}
+				else if (comandos[0].equals("iplocal")) {
+					salida.println(PRINT_LINE);
+					salida.println("IP local: " + dSocket.getDireccionRemota());
+					salida.println(NONE);
+				}
+				else if (comandos[0].equals("ipremota")) {
+					salida.println(PRINT_LINE);
+					salida.println("IP remota: " + dSocket.getDireccionLocal());
+					salida.println(NONE);
+
+				}
 				else if (comandos[0].equals("enviar")) { // transferir un archivo desde el cliente hasta el servidor
 					if (comandos.length == 3) {
 						salida.println(TRANSFER_FILE);
