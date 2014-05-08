@@ -130,11 +130,58 @@ class AtiendeM2 extends Thread implements Operaciones {
 					salida.println("Comando rechazado, inicia sesion con el comando \"log <nombre de usuario>\"");
 					salida.println(NONE);
 				}
+				/*METODOS CLIENTE*/
 				else if (comandos[0].equals("ipinfoL")) {
 					salida.println(PRINT_LINE);
 					salida.println("IP local: " + dSocket.getDireccionRemota());
 					salida.println(NONE);
 				}
+
+				else if(comandos[0].equals("dirL"))
+                {//mostrar todos los archivos del directorio actual
+                    if(comandos.length==1)
+                    {//llamada al metodo listar archivos
+                        salida.println(LISTAR);
+                        salida.println(NONE);
+                    }
+                    else {
+						salida.println(PRINT_LINE);
+						salida.println("Error: utilice el comando \"dirL\"");
+						salida.println(NONE);
+					}
+
+                }
+				else if(comandos[0].equals("rmL"))
+                {//comando para borrar archivos
+                    if(comandos.length==2)
+                    {
+                        salida.println(BORRAR);
+                        salida.println(NONE);
+
+                    }
+                    else {
+						salida.println(PRINT_LINE);
+						salida.println("Error: utilice el comando \"rmL\" <archivo>");
+						salida.println(NONE);
+					}
+
+                }
+                else if(comandos[0].equals("cpL"))
+                {//copiar archivo
+                    if(comandos.length==3)
+                    {
+                        salida.println(COPIAR);
+                        salida.println(NONE);
+                    }
+                    else {
+						salida.println(PRINT_LINE);
+						salida.println("Error: utilice el comando \"cpL\" <archivo1> <archivo2>");
+						salida.println(NONE);
+					}
+                }
+
+
+				/*METODOS SERVIDOR*/
 				else if (comandos[0].equals("ipinfoR")) {
 					salida.println(PRINT_LINE);
 					salida.println("IP remota: " + dSocket.getDireccionLocal());
@@ -189,7 +236,7 @@ class AtiendeM2 extends Thread implements Operaciones {
                 }
                 else if(comandos[0].equals("cpR"))
                 {//copiar archivo
-                    if(comandos.length==2)
+                    if(comandos.length==3)
                     {//llamada al metodo copiarArchivo
                         salida.println(PRINT_LINE);
                         boolean s=ManejadorArchivos.copiarArchivo(comandos[1],comandos[2]);
@@ -209,6 +256,28 @@ class AtiendeM2 extends Thread implements Operaciones {
 						salida.println("Error: utilice el comando \"cpR\" <archivo1> <archivo2>");
 						salida.println(NONE);
 					}
+                }
+                else if(comandos[0].equals("?"))
+                {
+                    salida.println(PRINT_LINE);
+                    salida.println("Menu de comandos");
+                    salida.println(PRINT_LINE);
+                    salida.println("dirR");
+                    salida.println(PRINT_LINE);
+                    salida.println("rmR");
+                    salida.println(PRINT_LINE);
+                    salida.println("cpR");
+                    salida.println(PRINT_LINE);
+                    salida.println("dirL");
+                    salida.println(PRINT_LINE);
+                    salida.println("rmL");
+                    salida.println(PRINT_LINE);
+                    salida.println("cpL");
+                    salida.println(PRINT_LINE);
+                    salida.println("ipinfoL");
+                    salida.println(PRINT_LINE);
+                    salida.println("ipinfoR");
+                    salida.println(NONE);
                 }
 
 				else if (comandos[0].equals("enviar")) { // transferir un archivo desde el cliente hasta el servidor
