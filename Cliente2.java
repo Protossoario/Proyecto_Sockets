@@ -49,22 +49,22 @@ public class Cliente2 implements Operaciones {
 				operacion = Integer.parseInt(delServidor.readLine()); // Espera la indicacion del servidor
 				while (operacion != NONE && operacion != END) { // cualquier operacion que no termine ejecucion ni conexion
 					switch (operacion) {
-					// Le indica al cliente que debe leer otra linea del teclado y enviarla al servidor
+					// El cliente lee otra linea del teclado y se la envia al servidor
 					case READ_LINE:
 						tecleado = delTeclado.nextLine(); // input del teclado del cliente
 						alServidor.println(tecleado); // enviar al sevidor
 						break;
-					// Le indica al cliente que debe leer una linea del servidor e imprimirla como una nueva linea en la terminal
+					// El cliente lee una linea del servidor y la imprime como una nueva linea en la terminal
 					case PRINT_LINE:
 						respuesta = delServidor.readLine(); // lo que manda el servidor
 						System.out.println(respuesta); // imprimir lo que mando el servidor en una nueva linea
 						break;
-					// Le indica al cliente que debe leer una linea del servidor e imprimirla sin salto de linea
+					// EL cliente lee una linea del servidor y la imprime sin salto de linea
 					case PRINT:
 						respuesta = delServidor.readLine(); // lo que manda el servidor
 						System.out.print(respuesta); // imprimir en la misma linea lo que mando el servidor
 						break;
-					// Le indica al cliente que debe recibir el nombre de un archivo como un String, y enviar el archivo con ese nombre al servidor a traves del socket
+					// El cliente recibe del servidor el nombre de un archivo como String y envia el archivo con ese nombre al servidor a traves del socket
 					case TRANSFER_FILE:
 						String archivoNom = delServidor.readLine(); // servidor manda el nombre del archivo
 						File archivo = new File(archivoNom); 
@@ -79,26 +79,30 @@ public class Cliente2 implements Operaciones {
 						lectorArchivo.close();
 						System.out.println("Archivo enviado con exito");
 						break;
+                    // El cliente imprime una lista del nombre de los archivos en el directorio actual de si mismo
                     case LISTAR:
                         String s[];
-                        s=ManejadorArchivos.listarArchivos();
-                        for(int i=0;i<s.length;i++)
-                        {
-                            System.out.println(s[i]);
+                        s = ManejadorArchivos.listarArchivos(); // llama a listarArchivos() de la clase ManejadorArchivos
+                        for(int i=0;i<s.length;i++) {
+                            System.out.println(s[i]); // imprime cada nombre de archivo en una nueva linea
                         }
                         break;
+                    // El cliente recibe del servidor el nombre de un archivo como String y borra el archivo de la carpeta
                     case BORRAR:
-                        String nombreArchivo = delServidor.readLine();
-                        boolean resultadoB=ManejadorArchivos.borrarArchivo(nombreArchivo);
+                        String archivoNom = delServidor.readLine(); // servidor manda el nombre del archivo
+                        // llama a borrarArchivo enviando como parametro el nombre el archivo
+                        boolean resultadoB=ManejadorArchivos.borrarArchivo(archivoNom); // true si se pudo borrar, false no se pudo
                         if(resultadoB)
                             System.out.println("Archivo borrado.");
                         else
                             System.out.println("No se pudo borrar.");
                         break;
+                    // El cliente recibe del servidor dos nombres de archivo: el que se desea copiar y el nombre del nuevo archivo que se creara 
                     case COPIAR:
-                        String nombreArchivo1 = delServidor.readLine();
-                        String nombreArchivo2 = delServidor.readLine();
-                        boolean resultado=ManejadorArchivos.copiarArchivo(nombreArchivo1,nombreArchivo2);
+                        String nombreArchivo1 = delServidor.readLine(); // servidor manda el nombre del archivo a copiar
+                        String nombreArchivo2 = delServidor.readLine(); // servidor manda el nombre del archivo nuevo
+                        // llama a copiarArchivo enviando como parametros los dos archivos
+                        boolean resultado=ManejadorArchivos.copiarArchivo(nombreArchivo1,nombreArchivo2); // true si se pudo copiar, false no se pudo
                         if(resultado)
                             System.out.println("Archivo copiado.");
                         else
