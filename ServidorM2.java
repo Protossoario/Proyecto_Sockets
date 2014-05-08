@@ -127,7 +127,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 					aceptado = validarUsuario(usuario, contrasena); // revisar archivo de texto para validar usuario
 					if (aceptado) {
 						salida.println("Bienvenido");
-						bitacoraSesion.println("Inicio sesion: " + usuario + "; " + df.format(new Date())); 
+						bitacoraSesion.println("Inicio sesion: " + usuario + "; " + df.format(new Date()));
 						bitacoraUsuario = new PrintWriter(new BufferedWriter(new FileWriter(usuario + ".txt", true)));
 					}
 					else {
@@ -295,6 +295,8 @@ class AtiendeM2 extends Thread implements Operaciones {
                     salida.println(PRINT_LINE);
                     salida.println("cpL");
                     salida.println(PRINT_LINE);
+                    salida.println("cpL2R");
+                    salida.println(PRINT_LINE);
                     salida.println("ipinfoL");
                     salida.println(PRINT_LINE);
                     salida.println("ipinfoR");
@@ -302,7 +304,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 		    comando = true;
                 }
 
-				else if (comandos[0].equals("enviar")) { // transferir un archivo desde el cliente hasta el servidor
+				else if (comandos[0].equals("cpL2R")) { // transferir un archivo desde el cliente hasta el servidor
 					if (comandos.length == 3) {
 						salida.println(TRANSFER_FILE);
 						salida.println(comandos[1]); // enviar el nombre del archivo al cliente

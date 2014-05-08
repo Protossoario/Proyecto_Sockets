@@ -8,4 +8,5 @@ public interface Operaciones {
 	public static final int COPIAR=6;
 	public static final int BORRAR=7;
 	public static final int LISTAR=8;
+	public static final int MOVER_RL=9;
 }

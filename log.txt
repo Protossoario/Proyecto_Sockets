@@ -4,3 +4,7 @@ Inicio sesion: admin; Thursday, May 8, 2014 2:18:17 AM CDT
 Cerro sesion: admin; Thursday, May 8, 2014 2:18:22 AM CDT
 Inicio sesion: iliana; Thursday, May 8, 2014 2:18:27 AM CDT
 Cerro sesion: iliana; Thursday, May 8, 2014 2:18:30 AM CDT
+Inicio sesion: graciela; Thursday, May 8, 2014 2:27:12 AM CDT
+Cerro sesion: graciela; Thursday, May 8, 2014 2:27:53 AM CDT
+Inicio sesion: graciela; Thursday, May 8, 2014 11:47:46 AM CDT
+Cerro sesion: graciela; Thursday, May 8, 2014 11:47:54 AM CDT
