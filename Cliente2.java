@@ -43,44 +43,44 @@ public class Cliente2 implements Operaciones {
 		int operacion;
 		do {
 			System.out.print("> ");
-			tecleado = delTeclado.nextLine();
+			tecleado = delTeclado.nextLine(); // guardar lo que se teclea
 			alServidor.println(tecleado); // Enviar comando al servidor
 			try {
 				operacion = Integer.parseInt(delServidor.readLine()); // Espera la indicacion del servidor
-				while (operacion != NONE && operacion != END) {
+				while (operacion != NONE && operacion != END) { // cualquier operacion que no termine ejecucion ni conexion
 					switch (operacion) {
 					// Le indica al cliente que debe leer otra linea del teclado y enviarla al servidor
 					case READ_LINE:
-						tecleado = delTeclado.nextLine();
-						alServidor.println(tecleado);
+						tecleado = delTeclado.nextLine(); // input del teclado del cliente
+						alServidor.println(tecleado); // enviar al sevidor
 						break;
 					// Le indica al cliente que debe leer una linea del servidor e imprimirla como una nueva linea en la terminal
 					case PRINT_LINE:
-						respuesta = delServidor.readLine();
-						System.out.println(respuesta);
+						respuesta = delServidor.readLine(); // lo que manda el servidor
+						System.out.println(respuesta); // imprimir lo que mando el servidor en una nueva linea
 						break;
 					// Le indica al cliente que debe leer una linea del servidor e imprimirla sin salto de linea
 					case PRINT:
-						respuesta = delServidor.readLine();
-						System.out.print(respuesta);
+						respuesta = delServidor.readLine(); // lo que manda el servidor
+						System.out.print(respuesta); // imprimir en la misma linea lo que mando el servidor
 						break;
 					// Le indica al cliente que debe recibir el nombre de un archivo como un String, y enviar el archivo con ese nombre al servidor a traves del socket
 					case TRANSFER_FILE:
-						String archivoNom = delServidor.readLine();
-						File archivo = new File(archivoNom);
-						byte[] datos = new byte[(int) archivo.length()];
-						alServidor.println(datos.length);
-						BufferedInputStream lectorArchivo = new BufferedInputStream(new FileInputStream(archivo));
-						lectorArchivo.read(datos, 0, datos.length);
-						OutputStream os = yo.getOutputStream();
+						String archivoNom = delServidor.readLine(); // servidor manda el nombre del archivo
+						File archivo = new File(archivoNom); 
+						byte[] datos = new byte[(int) archivo.length()]; // guarda el archivo en arreglo de bytes
+						alServidor.println(datos.length); // enviar al servidor el arreglo de bytes del archivo
+						BufferedInputStream lectorArchivo = new BufferedInputStream(new FileInputStream(archivo)); // cliente lee el archivo que tiene en su directorio
+						lectorArchivo.read(datos, 0, datos.length); // lee el archivo y lo guarda en el arreglo de bytes
+						OutputStream os = yo.getOutputStream(); // objeto que conecta el cliente con el servidor para enviar los bytes
 						System.out.println("Transfiriendo archivo: " + archivoNom);
-						os.write(datos, 0, datos.length);
-						os.flush();
+						os.write(datos, 0, datos.length); // envia al servidor el arreglo de bytes
+						os.flush(); // asegurar que si se manden los bytes (y no se queden solo guardados en la variable)
 						lectorArchivo.close();
 						System.out.println("Archivo enviado con exito");
 						break;
 					}
-					operacion = Integer.parseInt(delServidor.readLine());
+					operacion = Integer.parseInt(delServidor.readLine()); // lee una nueva operacion del cliente
 				}
 			}
 			catch (IOException ex) {
