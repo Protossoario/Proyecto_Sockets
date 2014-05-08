@@ -320,7 +320,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 					}
 					else {
 						salida.println(PRINT_LINE);
-						salida.println("Error: utilice el comando \"enviar <archivo original> <archivo copiado>\"");
+						salida.println("Error: utilice el comando \"cpL2R <archivo original> <archivo copiado>\"");
 						salida.println(NONE);
 					}
 					comando = true;
