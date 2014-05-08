@@ -89,9 +89,9 @@ public class Cliente2 implements Operaciones {
                         break;
                     // El cliente recibe del servidor el nombre de un archivo como String y borra el archivo de la carpeta
                     case BORRAR:
-                        String archivoNom = delServidor.readLine(); // servidor manda el nombre del archivo
+                        String nombreArchivo = delServidor.readLine(); // servidor manda el nombre del archivo
                         // llama a borrarArchivo enviando como parametro el nombre el archivo
-                        boolean resultadoB=ManejadorArchivos.borrarArchivo(archivoNom); // true si se pudo borrar, false no se pudo
+                        boolean resultadoB=ManejadorArchivos.borrarArchivo(nombreArchivo); // true si se pudo borrar, false no se pudo
                         if(resultadoB)
                             System.out.println("Archivo borrado.");
                         else
