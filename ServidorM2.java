@@ -130,12 +130,12 @@ class AtiendeM2 extends Thread implements Operaciones {
 					salida.println("Comando rechazado, inicia sesion con el comando \"log <nombre de usuario>\"");
 					salida.println(NONE);
 				}
-				else if (comandos[0].equals("iplocal")) {
+				else if (comandos[0].equals("ipinfoL")) {
 					salida.println(PRINT_LINE);
 					salida.println("IP local: " + dSocket.getDireccionRemota());
 					salida.println(NONE);
 				}
-				else if (comandos[0].equals("ipremota")) {
+				else if (comandos[0].equals("ipinfoR")) {
 					salida.println(PRINT_LINE);
 					salida.println("IP remota: " + dSocket.getDireccionLocal());
 					salida.println(NONE);
