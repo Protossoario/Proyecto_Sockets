@@ -1,5 +1,7 @@
 import java.io.*;
 import java.net.*;
+import java.text.DateFormat;
+import java.util.Date;
 
 public class ServidorM2{
 	public static void main(String[] args){
@@ -76,6 +78,9 @@ class DatosSocket {
 class AtiendeM2 extends Thread implements Operaciones {
 	private BufferedReader entrada; // lo que se lee del cliente
 	private PrintWriter salida; // por donde se manda algo al cliente
+	private PrintWriter bitacoraSesion;
+	private PrintWriter bitacoraUsuario;
+	private DateFormat df;
 	private Socket cliente = null; // variable de conexion que recibe el servidor
 	private final int MAX_INTENTOS = 3; // intentos de log in del usuario
 	private final int MAX_SIZE = 1000000; // tamano maximo en bytes del buffer para la transferencia de archivos del cliente al servidor
@@ -89,14 +94,17 @@ class AtiendeM2 extends Thread implements Operaciones {
 
 	// comunicacion del servidor con el cliente
 	public void run() {
+		String usuario = "";
+		boolean aceptado = false; // indica si el usuario ya inicio sesion con exito
 		try {
         	entrada = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
 			salida = new PrintWriter(cliente.getOutputStream(), true);
+			bitacoraSesion = new PrintWriter("log.txt");
+			df = DateFormat.getDateInstance(DateFormat.FULL);
 			String leido; // guarda lo que lee de la entrada del cliente
-			String usuario;
 			String[] comandos;
 			int intentos = 0; // numero de intentos de log in
-			boolean aceptado = false; // indica si el usuario ya inicio sesion con exito
+			boolean comando = false; // checa si el usuario introdujo un comando valido para registrar en el log
 			do {
 				leido = entrada.readLine(); // entrada del cliente
 				comandos = leido.split(" "); // parte el comando en un arreglo de strings
@@ -106,6 +114,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 				}
 				else if (comandos[0].equals("exit")) {
 					salida.println(END); // cerrar la conexion con el cliente
+					comando = true;
 				}
 				else if (comandos[0].equals("log") && !aceptado) { //log in de un usuario que NO ha iniciado sesion
 					intentos++; // aumenta contador de intentos de log in
@@ -118,12 +127,14 @@ class AtiendeM2 extends Thread implements Operaciones {
 					aceptado = validarUsuario(usuario, contrasena); // revisar archivo de texto para validar usuario
 					if (aceptado) {
 						salida.println("Bienvenido");
-						// TODO: agregar el usuario al log
+						bitacoraSesion.println("Inicio sesion: " + usuario + "; " + df.format(new Date())); 
+						bitacoraUsuario = new PrintWriter(usuario + ".txt");
 					}
 					else {
 						salida.println("Credenciales rechazadas (" + (MAX_INTENTOS - intentos) + " intentos restantes)");
 					}
 					salida.println(NONE); // finaliza ejecucion del comando de log in
+					comando = true;
 				}
 				else if (!aceptado) { // no permite ejecutar nada, sin haber iniciado sesion
 					salida.println(PRINT_LINE);
@@ -135,6 +146,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 					salida.println(PRINT_LINE);
 					salida.println("IP local: " + dSocket.getDireccionRemota());
 					salida.println(NONE);
+					comando = true;
 				}
 
 				else if(comandos[0].equals("dirL"))
@@ -149,6 +161,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 						salida.println("Error: utilice el comando \"dirL\"");
 						salida.println(NONE);
 					}
+		    comando = true;
 
                 }
 				else if(comandos[0].equals("rmL"))
@@ -166,6 +179,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 						salida.println(NONE);
 					}
 
+		    comando = true;
                 }
                 else if(comandos[0].equals("cpL"))
                 {//copiar archivo
@@ -181,6 +195,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 						salida.println("Error: utilice el comando \"cpL\" <archivo1> <archivo2>");
 						salida.println(NONE);
 					}
+		    comando = true;
                 }
 
 
@@ -189,7 +204,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 					salida.println(PRINT_LINE);
 					salida.println("IP remota: " + dSocket.getDireccionLocal());
 					salida.println(NONE);
-
+					comando = true;
 				}
 				else if(comandos[0].equals("dirR"))
                 {//mostrar todos los archivos del directorio actual
@@ -210,6 +225,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 						salida.println(NONE);
 					}
 
+		    comando = true;
                 }
 				else if(comandos[0].equals("rmR"))
                 {//comando para borrar archivos
@@ -236,6 +252,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 						salida.println(NONE);
 					}
 
+		    comando = true;
                 }
                 else if(comandos[0].equals("cpR"))
                 {//copiar archivo
@@ -259,6 +276,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 						salida.println("Error: utilice el comando \"cpR\" <archivo1> <archivo2>");
 						salida.println(NONE);
 					}
+		    comando = true;
                 }
                 else if(comandos[0].equals("?"))
                 {
@@ -281,6 +299,7 @@ class AtiendeM2 extends Thread implements Operaciones {
                     salida.println(PRINT_LINE);
                     salida.println("ipinfoR");
                     salida.println(NONE);
+		    comando = true;
                 }
 
 				else if (comandos[0].equals("enviar")) { // transferir un archivo desde el cliente hasta el servidor
@@ -302,11 +321,15 @@ class AtiendeM2 extends Thread implements Operaciones {
 						salida.println("Error: utilice el comando \"enviar <archivo original> <archivo copiado>\"");
 						salida.println(NONE);
 					}
+					comando = true;
 				}
 				else { // si es un comando que no reconoce, no hace nada y lo finaliza
 					salida.println(NONE);
 				}
-			} while (!comandos[0].equals("exit")); /* va a seguir recibiendo comandos, mientras no reciba exit
+				if (comando) {
+					bitacoraUsuario.println(comandos[0] + " " + df.format(new Date()));
+				}
+			} while (intentos < MAX_INTENTOS && (!comando || !comandos[0].equals("exit"))); /* va a seguir recibiendo comandos, mientras no reciba exit
 													se termina la sesion cuando el usuario envia el comando de exit */
 		}
 		catch (SocketException se) { // Para que el ctrl-C no haga "tronar" al servidor
@@ -316,13 +339,17 @@ class AtiendeM2 extends Thread implements Operaciones {
 			System.err.println("Error al recibir datos: " + e.getMessage());
 			e.printStackTrace();
 		}
-		// TODO: guardar el log de que el usuario cerro sesion
+		if (aceptado) {
+			bitacoraSesion.println("Cerro sesion: " + usuario + "; " + df.format(new Date()));
+		}
 
 		// conexion se cierra: por el comando exit o por error
 		try {
 			entrada.close();
 			salida.close();
 			cliente.close();
+			bitacoraSesion.close();
+			bitacoraUsuario.close();
 		}
 		catch(IOException e){}
 		System.out.println("Ya se desconecto --> "+ dSocket.toString());

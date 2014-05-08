@@ -1,1 +1,4 @@
 admin:1234
+eduardo:123
+graciela:123
+iliana:123
