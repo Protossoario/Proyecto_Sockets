@@ -78,6 +78,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 	private PrintWriter salida; // por donde se manda algo al cliente
 	private Socket cliente = null; // variable de conexion que recibe el servidor
 	private final int MAX_INTENTOS = 3; // intentos de log in del usuario
+	private final int MAX_SIZE = 1000000; // tamano maximo en bytes del buffer para la transferencia de archivos del cliente al servidor
 	DatosSocket dSocket = null;
 
 	public AtiendeM2(Socket cliente){ // recibe el socket del cliente 
@@ -129,6 +130,26 @@ class AtiendeM2 extends Thread implements Operaciones {
 					salida.println("Comando rechazado, inicia sesion con el comando \"log <nombre de usuario>\"");
 					salida.println(NONE);
 				}
+				else if (comandos[0].equals("enviar")) { // transferir un archivo desde el cliente hasta el servidor
+					if (comandos.length == 3) {
+						salida.println(TRANSFER_FILE);
+						salida.println(comandos[1]); // enviar el nombre del archivo al cliente
+						int bytesPorLeer = Integer.parseInt(entrada.readLine());
+						byte[] buffer = new byte[bytesPorLeer];
+						InputStream delCliente = cliente.getInputStream();
+						BufferedOutputStream escritorArchivo = new BufferedOutputStream(new FileOutputStream(comandos[2]));
+						delCliente.read(buffer, 0, buffer.length);
+						escritorArchivo.write(buffer, 0, buffer.length);
+						escritorArchivo.flush();
+						escritorArchivo.close();
+						salida.println(NONE);
+					}
+					else {
+						salida.println(PRINT_LINE);
+						salida.println("Error: utilice el comando \"enviar <archivo original> <archivo copiado>\"");
+						salida.println(NONE);
+					}
+				}
 				else { // si es un comando que no reconoce, no hace nada y lo finaliza
 					salida.println(NONE);
 				}
@@ -136,12 +157,13 @@ class AtiendeM2 extends Thread implements Operaciones {
 													se termina la sesion cuando el usuario envia el comando de exit */
 		}
 		catch (SocketException se) { // Para que el ctrl-C no haga "tronar" al servidor
-			System.err.println("Error al recibir datos, cerrando conexion.....");
+			System.err.println("Error al recibir datos, cerrando conexion.....");
 		}
 		catch (IOException e) {
 			System.err.println("Error al recibir datos: " + e.getMessage());
 			e.printStackTrace();
 		}
+		// TODO: guardar el log de que el usuario cerro sesion
 
 		// conexion se cierra: por el comando exit o por error
 		try {
@@ -166,7 +188,7 @@ class AtiendeM2 extends Thread implements Operaciones {
 					System.err.println("Error de formato en el archivo de usuarios.txt: " + linea);
 				}
 				// Validar las credenciales del usuario con la informacion de la linea leida del archivo usuarios.txt
-				else if (info[0].compareTo(usuario) == 0 && info[1].compareTo(contra) == 0) {
+				else if (info[0].equals(usuario) && info[1].equals(contra)) {
 					return true; // usuario y contrasenas del usuario coinciden con un usuario en el archivo
 				}
 				linea = delArchivo.readLine(); // lee la siguiente linea

@@ -64,6 +64,21 @@ public class Cliente2 implements Operaciones {
 						respuesta = delServidor.readLine();
 						System.out.print(respuesta);
 						break;
+					// Le indica al cliente que debe recibir el nombre de un archivo como un String, y enviar el archivo con ese nombre al servidor a traves del socket
+					case TRANSFER_FILE:
+						String archivoNom = delServidor.readLine();
+						File archivo = new File(archivoNom);
+						byte[] datos = new byte[(int) archivo.length()];
+						alServidor.println(datos.length);
+						BufferedInputStream lectorArchivo = new BufferedInputStream(new FileInputStream(archivo));
+						lectorArchivo.read(datos, 0, datos.length);
+						OutputStream os = yo.getOutputStream();
+						System.out.println("Transfiriendo archivo: " + archivoNom);
+						os.write(datos, 0, datos.length);
+						os.flush();
+						lectorArchivo.close();
+						System.out.println("Archivo enviado con exito");
+						break;
 					}
 					operacion = Integer.parseInt(delServidor.readLine());
 				}

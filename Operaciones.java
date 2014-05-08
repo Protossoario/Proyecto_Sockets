@@ -4,4 +4,5 @@ public interface Operaciones {
 	public static final int READ_LINE = 2;
 	public static final int END = -1;
 	public static final int PRINT = 4;
+	public static final int TRANSFER_FILE = 5;
 }
